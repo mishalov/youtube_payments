@@ -7,6 +7,7 @@ import com.github.kotlintelegrambot.dispatcher.inlineQuery
 import com.github.kotlintelegrambot.dispatcher.message
 import com.github.kotlintelegrambot.dispatcher.preCheckoutQuery
 import com.github.kotlintelegrambot.entities.ChatId
+import com.github.kotlintelegrambot.entities.User
 import com.github.kotlintelegrambot.entities.inlinequeryresults.InlineQueryResult
 import com.github.kotlintelegrambot.entities.inlinequeryresults.InputMessageContent
 import com.github.kotlintelegrambot.entities.payments.LabeledPrice
@@ -68,8 +69,18 @@ class TelegramBotImpl constructor(telegramToken: String) : TelegramBot {
             }
 
             preCheckoutQuery {
-                bot.answerPreCheckoutQuery(PreCheckoutQuery(id=preCheckoutQuery.id))
+                val from = preCheckoutQuery.from
+                val invoicePayload = preCheckoutQuery.invoicePayload
+
+                if (!validateEmail(invoicePayload)) {
+                    bot.sendMessage(chatId = ChatId.fromId(update.message!!.chat.id), text="Can not read email from invoicePayload.")
+                    return@preCheckoutQuery
+                }
+
+                bot.answerPreCheckoutQuery(ok=true, preCheckoutQueryId = preCheckoutQuery.id)
             }
+
+            succe
         }
     }
 
