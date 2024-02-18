@@ -10,4 +10,6 @@ interface IAccountsService {
     fun getAllSubscriptions(): List<AccountDTO>
     fun getSingleSubscription(accountEmail: String): AccountDTO?
     fun getNonConfirmedPayments(): List<AccountDTO>
+    fun updateAccountsActivationState()
+    fun getActive(): List<AccountDTO>
 }

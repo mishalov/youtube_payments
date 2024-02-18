@@ -14,6 +14,10 @@ version = "0.0.1"
 val exposedVersion: String by project
 val koinVersion: String by project
 
+kotlin{
+    jvmToolchain(17)
+}
+
 application {
     mainClass.set("youtube_payments.ApplicationKt")
 

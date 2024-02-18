@@ -2,6 +2,9 @@ package youtube_payments.services
 
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.inList
+import org.jetbrains.exposed.sql.javatime.CurrentDate
+import org.jetbrains.exposed.sql.javatime.CurrentDateTime
 import org.jetbrains.exposed.sql.transactions.transaction
 import youtube_payments.dao.AccountDAO
 import youtube_payments.dto.AccountDTO
@@ -100,9 +103,41 @@ class AccountsService: IAccountsService {
         }
     }
 
+
+
     override fun getNonConfirmedPayments(): List<AccountDTO> {
         return transaction {
             AccountDAO.select { AccountDAO.paymentConfirmed eq false }.map {
+                AccountDTO(
+                    email=it[AccountDAO.email],
+                    paidUntil=it[AccountDAO.paidUntil],
+                    paymentConfirmed = it[AccountDAO.paymentConfirmed]
+                )
+            }
+        }
+    }
+
+    override fun updateAccountsActivationState() {
+        transaction {
+            val wronglyActiveIds = AccountDAO.select {
+                (AccountDAO.paymentConfirmed eq true
+                and
+                AccountDAO.paidUntil.less(CurrentDate))
+            }.map{ it[AccountDAO.id] }
+
+            AccountDAO.update ({
+                AccountDAO.id inList wronglyActiveIds
+            }) {
+                it[AccountDAO.paymentConfirmed] = false
+            }
+        }
+    }
+
+    override fun getActive(): List<AccountDTO> {
+        return transaction {
+            AccountDAO.select {
+                AccountDAO.paymentConfirmed  eq true
+            }.map {
                 AccountDTO(
                     email=it[AccountDAO.email],
                     paidUntil=it[AccountDAO.paidUntil],

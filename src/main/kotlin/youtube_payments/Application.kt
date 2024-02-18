@@ -19,10 +19,10 @@ val adminId = dotenv["ADMIN_ID"]
 val adminUsername = dotenv["ADMIN_USERNAME"]
 
 val accountsService = AccountsService()
-val telegramBot = TelegramBot(telegramToken, paymentToken, adminId.toLong(), accountsService)
+val telegramService = TelegramService(telegramToken, paymentToken, adminId.toLong(), accountsService)
 
 val modulesForInjection = module {
-    single { telegramBot }
+    single { telegramService }
     single  { accountsService}
 }
 
