@@ -10,10 +10,9 @@ import com.github.kotlintelegrambot.entities.ParseMode
 import com.github.kotlintelegrambot.entities.payments.LabeledPrice
 import com.github.kotlintelegrambot.entities.payments.PaymentInvoiceInfo
 import com.github.kotlintelegrambot.extensions.filters.Filter
-import youtube_payments.utils.humanFormatDate
+import com.github.kotlintelegrambot.logging.LogLevel
+import youtube_payments.utils.prettyDateFormat
 import youtube_payments.utils.listOfUnconfirmed
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 import java.util.regex.Pattern
 
 
@@ -34,6 +33,7 @@ class TelegramService constructor(telegramToken: String, paymentToken: String, a
 
     private val telegramBot = bot {
         token = telegramToken
+        logLevel = LogLevel.All()
 
         dispatch {
             command("start") {
@@ -58,7 +58,7 @@ class TelegramService constructor(telegramToken: String, paymentToken: String, a
                     return@command
                 }
 
-                val value: String = humanFormatDate(account.paidUntil)
+                val value: String = prettyDateFormat(account.paidUntil)
 
                 bot.sendMessage(
                     chatId = ChatId.fromId(message.chat.id),
@@ -81,7 +81,7 @@ class TelegramService constructor(telegramToken: String, paymentToken: String, a
                 val email = args[0]
 
                 val result = accountsService.confirmPayment(email)
-                bot.sendMessage(chatId = ChatId.fromId(message.chat.id), "Confirmed payment for ${result.email}. Valid until ${humanFormatDate(result.paidUntil)}")
+                bot.sendMessage(chatId = ChatId.fromId(message.chat.id), "Confirmed payment for ${result.email}. Valid until ${prettyDateFormat(result.paidUntil)}")
             }
 
             command("active") {
@@ -139,7 +139,7 @@ class TelegramService constructor(telegramToken: String, paymentToken: String, a
                     val email = successfulPayment.invoicePayload;
                     val result = accountsService.updateSubscription(email, 1);
 
-                    bot.sendMessage(chatId = ChatId.fromId(message.chat.id), text="Your email : $email, will be added to Youtube Family list. Your subscription expires at ${humanFormatDate(result.paidUntil) }")
+                    bot.sendMessage(chatId = ChatId.fromId(message.chat.id), text="Your email : $email, will be added to Youtube Family list. Your subscription expires at ${prettyDateFormat(result.paidUntil) }")
                     bot.sendMessage(chatId = ChatId.fromId(adminId), "New Payment received! Email: ${result.email}")
                 }
             }

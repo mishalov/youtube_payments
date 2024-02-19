@@ -78,9 +78,9 @@ class AccountsService: IAccountsService {
         }
     }
 
-    override fun removeAccount(accountEmail: String): Boolean {
+    override fun removeAccount(accountEmail: String): Int {
         return transaction {
-            AccountDAO.deleteWhere { AccountDAO.email eq accountEmail } > 0
+            AccountDAO.deleteWhere { AccountDAO.email eq accountEmail }
         }
     }
 
@@ -144,6 +144,12 @@ class AccountsService: IAccountsService {
                     paymentConfirmed = it[AccountDAO.paymentConfirmed]
                 )
             }
+        }
+    }
+
+    fun removeAll() {
+        return transaction {
+            AccountDAO.deleteAll()
         }
     }
 }
